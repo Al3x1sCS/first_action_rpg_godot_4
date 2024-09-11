@@ -50,7 +50,7 @@ func update_destination(new_destination: Vector2) -> void:
 func halt_movement() -> void:
     is_moving = false
     velocity = Vector2.ZERO
-    set_idle_animation()
+    set_animation_based_on_direction(last_direction, "idle")
 
 # Calcula a direção do movimento
 func calculate_direction() -> void:
@@ -70,21 +70,25 @@ func perform_movement(_delta: float) -> void:
 # Atualiza a animação se necessário
 func update_animation_if_needed() -> void:
     if is_moving:
-        determine_animation()
+        set_animation_based_on_direction(direction, "walk")
 
-# Determina a animação com base na direção
-func determine_animation() -> void:
-    if abs(direction.x) > abs(direction.y):
-        if direction.x > 0:
-            set_animation("walk_side_right")
+# Define a animação com base na direção e tipo
+func set_animation_based_on_direction(dir: Vector2, type: String) -> void:
+    var key: String
+
+    if abs(dir.x) > abs(dir.y):
+        if dir.x > 0:
+            key = type + "_side_right"
         else:
-            set_animation("walk_side_left")
+            key = type + "_side_left"
     else:
-        if direction.y > 0:
-            set_animation("walk_front")
+        if dir.y > 0:
+            key = type + "_front"
         else:
-            set_animation("walk_back")
-    last_direction = direction
+            key = type + "_back"
+
+    set_animation(key)
+    last_direction = dir
 
 # Verifica se o jogador deve parar de se mover
 func check_and_stop_if_needed() -> void:
@@ -97,19 +101,6 @@ func set_animation(key: String) -> void:
     current_animation = anim_data["animation"]
     animated_sprite.flip_h = anim_data["flip_h"]
     animated_sprite.play(current_animation)
-
-# Define a animação de idle com base na última direção
-func set_idle_animation() -> void:
-    if abs(last_direction.x) > abs(last_direction.y):
-        if last_direction.x > 0:
-            set_animation("idle_side_right")
-        else:
-            set_animation("idle_side_left")
-    else:
-        if last_direction.y > 0:
-            set_animation("idle_front")
-        else:
-            set_animation("idle_back")
 
 # Função chamada quando o nó entra na árvore de cena pela primeira vez
 func _ready() -> void:

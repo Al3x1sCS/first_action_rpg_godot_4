@@ -30,6 +30,7 @@ var animation_map = {
 func _physics_process(delta: float) -> void:
     handle_movement(delta)
 
+# Função para lidar com o movimento do jogador
 func handle_movement(delta: float) -> void:
     if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
         set_destination(get_global_mouse_position())

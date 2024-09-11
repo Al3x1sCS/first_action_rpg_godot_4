@@ -28,44 +28,52 @@ var animation_map = {
 
 # Função principal de atualização
 func _physics_process(delta: float) -> void:
-    handle_movement(delta)
+    process_input()
+    move_if_needed(delta)
+    update_animation_if_needed()
+    check_and_stop_if_needed()
 
-# Função para lidar com o movimento do jogador
-func handle_movement(delta: float) -> void:
+# Processa a entrada do usuário
+func process_input() -> void:
     if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-        set_destination(get_global_mouse_position())
+        update_destination(get_global_mouse_position())
 
     if Input.is_action_pressed("mv_stop"):
-        stop_movement()
+        halt_movement()
 
-    if is_moving:
-        update_direction()
-        move_player(delta)
-        update_animation()
-        check_stop_condition()
-
-# Define o destino do movimento
-func set_destination(new_destination: Vector2) -> void:
+# Atualiza o destino do movimento
+func update_destination(new_destination: Vector2) -> void:
     destination = new_destination
     is_moving = true
 
 # Para o movimento do jogador
-func stop_movement() -> void:
+func halt_movement() -> void:
     is_moving = false
     velocity = Vector2.ZERO
     set_idle_animation()
 
-# Atualiza a direção do movimento
-func update_direction() -> void:
+# Calcula a direção do movimento
+func calculate_direction() -> void:
     direction = (destination - global_position).normalized()
     velocity = direction * SPEED
 
-# Move o jogador
-func move_player(_delta: float) -> void:
+# Move o jogador se necessário
+func move_if_needed(delta: float) -> void:
+    if is_moving:
+        calculate_direction()
+        perform_movement(delta)
+
+# Realiza o movimento do jogador
+func perform_movement(_delta: float) -> void:
     move_and_slide()
 
-# Atualiza a animação com base na direção
-func update_animation() -> void:
+# Atualiza a animação se necessário
+func update_animation_if_needed() -> void:
+    if is_moving:
+        determine_animation()
+
+# Determina a animação com base na direção
+func determine_animation() -> void:
     if abs(direction.x) > abs(direction.y):
         if direction.x > 0:
             set_animation("walk_side_right")
@@ -79,9 +87,9 @@ func update_animation() -> void:
     last_direction = direction
 
 # Verifica se o jogador deve parar de se mover
-func check_stop_condition() -> void:
-    if global_position.distance_to(destination) < STOP_DISTANCE:
-        stop_movement()
+func check_and_stop_if_needed() -> void:
+    if is_moving and global_position.distance_to(destination) < STOP_DISTANCE:
+        halt_movement()
 
 # Define a animação atual
 func set_animation(key: String) -> void:

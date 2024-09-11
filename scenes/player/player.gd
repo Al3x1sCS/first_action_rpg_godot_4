@@ -43,14 +43,16 @@ func process_input() -> void:
 
 # Atualiza o destino do movimento
 func update_destination(new_destination: Vector2) -> void:
-    destination = new_destination
-    is_moving = true
+    if new_destination != global_position:
+        destination = new_destination
+        is_moving = true
 
 # Para o movimento do jogador
 func halt_movement() -> void:
-    is_moving = false
-    velocity = Vector2.ZERO
-    set_animation_based_on_direction(last_direction, "idle")
+    if is_moving:
+        is_moving = false
+        velocity = Vector2.ZERO
+        set_animation_based_on_direction(last_direction, "idle")
 
 # Calcula a direção do movimento
 func calculate_direction() -> void:
@@ -64,8 +66,8 @@ func move_if_needed(delta: float) -> void:
         perform_movement(delta)
 
 # Realiza o movimento do jogador
-func perform_movement(_delta: float) -> void:
-    move_and_slide()
+func perform_movement(delta: float) -> void:
+    move_and_collide(velocity * delta)
 
 # Atualiza a animação se necessário
 func update_animation_if_needed() -> void:
@@ -87,8 +89,9 @@ func set_animation_based_on_direction(dir: Vector2, type: String) -> void:
         else:
             key = type + "_back"
 
-    set_animation(key)
-    last_direction = dir
+    if current_animation != key:
+        set_animation(key)
+        last_direction = dir
 
 # Verifica se o jogador deve parar de se mover
 func check_and_stop_if_needed() -> void:
@@ -97,10 +100,15 @@ func check_and_stop_if_needed() -> void:
 
 # Define a animação atual
 func set_animation(key: String) -> void:
-    var anim_data = animation_map[key]
-    current_animation = anim_data["animation"]
-    animated_sprite.flip_h = anim_data["flip_h"]
-    animated_sprite.play(current_animation)
+    if animation_map.has(key):
+        var anim_data = animation_map[key]
+        current_animation = anim_data["animation"]
+        animated_sprite.flip_h = anim_data["flip_h"]
+        animated_sprite.play(current_animation)
+    else:
+        print("Erro: Chave de animação não encontrada - ", key)
+        # Defina uma animação padrão ou tome outra ação apropriada
+        animated_sprite.play("idle_front")
 
 # Função chamada quando o nó entra na árvore de cena pela primeira vez
 func _ready() -> void:

@@ -14,6 +14,10 @@ config/name="first_action_rpg_godot_4"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://sprites/icon.svg"
 
+[autoload]
+
+global="*res://scripts/global.gd"
+
 [display]
 
 window/stretch/scale=3.0

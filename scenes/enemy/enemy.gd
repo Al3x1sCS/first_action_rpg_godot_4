@@ -10,6 +10,12 @@ var player = null
 var last_direction = Vector2.ZERO  # Armazena a última direção de movimento
 var current_animation = ""
 
+# Variáveis de combate
+var player_in_range: bool = false
+var attack_cooldown: float = 0.0
+var health: int = 100
+var is_alive: bool = true
+
 # Variáveis para movimento aleatório
 var random_direction = Vector2.ZERO
 var random_speed = 0
@@ -38,6 +44,15 @@ var animation_map = {
     "damage_side_left": {"animation": "damage_side", "flip_h": true},
     "death_animation": {"animation": "death", "flip_h": false}
 }
+
+func enemy() -> void:
+    pass
+
+func _on_enemy_hitbox_body_entered(_body:Node2D) -> void:
+    pass # Replace with function body.
+
+func _on_enemy_hitbox_body_exited(_body:Node2D) -> void:
+    pass # Replace with function body.
 
 func _on_detection_area_body_entered(_body: Node2D) -> void:
     player = _body

@@ -1,5 +1,6 @@
-[gd_scene load_steps=69 format=3 uid="uid://db6vrvoo41htx"]
+[gd_scene load_steps=71 format=3 uid="uid://db6vrvoo41htx"]
 
+[ext_resource type="Script" path="res://scenes/enemy/enemy.gd" id="1_w2fvl"]
 [ext_resource type="Texture2D" uid="uid://cnvuihrbbamsr" path="res://sprites/characters/slime.png" id="1_wub3r"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_j7x3p"]
@@ -526,15 +527,29 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7wh32"]
-radius = 7.0
+radius = 60.0083
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_rb5ai"]
+radius = 6.08276
 
 [node name="Enemy" type="CharacterBody2D"]
+z_index = 1
 texture_filter = 1
+script = ExtResource("1_w2fvl")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 z_index = 1
+position = Vector2(0, -3)
 sprite_frames = SubResource("SpriteFrames_woaqn")
-animation = &"idle_side"
+animation = &"idle_front"
+
+[node name="detection_area" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="detection_area"]
+shape = SubResource("CircleShape2D_7wh32")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_7wh32")
+shape = SubResource("CircleShape2D_rb5ai")
+
+[connection signal="body_entered" from="detection_area" to="." method="_on_detection_area_body_entered"]
+[connection signal="body_exited" from="detection_area" to="." method="_on_detection_area_body_exited"]

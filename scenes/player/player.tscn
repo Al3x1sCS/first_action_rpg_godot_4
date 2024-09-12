@@ -426,9 +426,7 @@ script = ExtResource("1_k1pja")
 z_index = 1
 position = Vector2(-1, -15)
 sprite_frames = SubResource("SpriteFrames_lao38")
-animation = &"attack_back"
-frame = 3
-frame_progress = 0.808439
+animation = &"death_animation"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -1)

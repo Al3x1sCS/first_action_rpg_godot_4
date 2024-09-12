@@ -23,7 +23,12 @@ var animation_map = {
     "idle_side_right": {"animation": "idle_side", "flip_h": false},
     "idle_side_left": {"animation": "idle_side", "flip_h": true},
     "idle_front": {"animation": "idle_front", "flip_h": false},
-    "idle_back": {"animation": "idle_back", "flip_h": false}
+    "idle_back": {"animation": "idle_back", "flip_h": false},
+    "attack_back": {"animation": "attack_back", "flip_h": false},
+    "attack_front": {"animation": "attack_front", "flip_h": false},
+    "attack_side_right": {"animation": "attack_side", "flip_h": false},
+    "attack_side_left": {"animation": "attack_side", "flip_h": true},
+    "death_animation": {"animation": "death", "flip_h": false}
 }
 
 # Função principal de atualização

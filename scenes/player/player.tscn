@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=3 uid="uid://c2nk0pfoja23u"]
+[gd_scene load_steps=57 format=3 uid="uid://c2nk0pfoja23u"]
 
 [ext_resource type="Script" path="res://scenes/player/player.gd" id="1_k1pja"]
 [ext_resource type="Texture2D" uid="uid://djtrlmiirh7i1" path="res://sprites/characters/player.png" id="1_tpxwu"]
@@ -416,6 +416,9 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_x4te7"]
 radius = 4.5
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_taqlb"]
+radius = 11.0
+
 [node name="Player" type="CharacterBody2D"]
 z_index = 1
 y_sort_enabled = true
@@ -426,8 +429,22 @@ script = ExtResource("1_k1pja")
 z_index = 1
 position = Vector2(-1, -15)
 sprite_frames = SubResource("SpriteFrames_lao38")
-animation = &"death_animation"
+animation = &"walk_front"
+frame = 5
+frame_progress = 0.464433
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -1)
 shape = SubResource("CircleShape2D_x4te7")
+
+[node name="player_hitbox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="player_hitbox"]
+position = Vector2(-1, -6)
+shape = SubResource("CircleShape2D_taqlb")
+
+[node name="attack_cooldown" type="Timer" parent="."]
+
+[connection signal="body_entered" from="player_hitbox" to="." method="_on_player_hitbox_body_entered"]
+[connection signal="body_exited" from="player_hitbox" to="." method="_on_player_hitbox_body_exited"]
+[connection signal="timeout" from="attack_cooldown" to="." method="_on_attack_cooldown_timeout"]

@@ -11,6 +11,12 @@ var is_moving: bool = false
 var current_animation: String = ""
 var last_direction: Vector2 = Vector2.ZERO
 
+# Variáveis de combate
+var enemy_in_range: bool = false
+var enemy_attack_cooldown: bool = true
+var health: int = 100
+var player_alive: bool = true
+
 # Referência ao AnimatedSprite2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -31,12 +37,22 @@ var animation_map = {
     "death_animation": {"animation": "death", "flip_h": false}
 }
 
+func player() -> void:
+    pass
+
 # Função principal de atualização
 func _physics_process(delta: float) -> void:
     process_input()
     move_if_needed(delta)
     update_animation_if_needed()
     check_and_stop_if_needed()
+
+    if health <= 0:
+        player_alive = false
+        health = 0
+        set_animation("death_animation")
+        print("Player is dead!")
+        self.queue_free()
 
 # Processa a entrada do usuário
 func process_input() -> void:
@@ -115,6 +131,29 @@ func set_animation(key: String) -> void:
         # Defina uma animação padrão ou tome outra ação apropriada
         animated_sprite.play("idle_front")
 
+# Função chamada quando o corpo do jogador entra em contato com outro corpo
+func _on_player_hitbox_body_entered(_body:Node2D) -> void:
+    if _body.has_method("enemy"):
+        enemy_in_range = true
+
+# Função chamada quando o corpo do jogador sai de contato com outro corpo
+func _on_player_hitbox_body_exited(_body:Node2D) -> void:
+    if _body.has_method("enemy"):
+        enemy_in_range = false
+
+func _on_attack_cooldown_timeout() -> void:
+    enemy_attack_cooldown = true
+
+func attack() -> void:
+    pass
+
+func enemy_attack() -> void:
+    if enemy_in_range and enemy_attack_cooldown == true:
+        health = health - 20
+        enemy_attack_cooldown = false
+        $attack_cooldown.start()
+        print("Player health: ", health)
+
 # Função chamada quando o nó entra na árvore de cena pela primeira vez
 func _ready() -> void:
     pass
@@ -122,3 +161,4 @@ func _ready() -> void:
 # Função chamada a cada frame
 func _process(delta: float) -> void:
     _physics_process(delta)
+    enemy_attack()

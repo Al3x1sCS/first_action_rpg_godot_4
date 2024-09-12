@@ -61,12 +61,20 @@ func _physics_process(_delta: float) -> void:
 func move_randomly(_delta: float) -> void:
     random_move_timer -= _delta
     if random_move_timer <= 0:
-        random_direction = Vector2(randf() * 2 - 1, randf() * 2 - 1).normalized()
-        random_speed = randf_range(10, SPEED)
-        random_move_timer = RANDOM_MOVE_INTERVAL
+        if velocity == Vector2.ZERO:
+            # Se estava parado, começa a se mover
+            random_direction = Vector2(randf() * 2 - 1, randf() * 2 - 1).normalized()
+            random_speed = randf_range(10, SPEED)
+            random_move_timer = randf_range(1, RANDOM_MOVE_INTERVAL)  # Tempo aleatório para se mover
+            set_animation_based_on_direction(random_direction, "walk")
+        else:
+            # Se estava se movendo, para
+            random_direction = Vector2.ZERO
+            random_speed = 0
+            random_move_timer = randf_range(0.5, 2.0)  # Tempo aleatório para ficar parado
+            set_animation_based_on_direction(last_direction, "idle")
 
     velocity = random_direction * random_speed
-    set_animation_based_on_direction(random_direction, "walk")
 
 # Define a animação com base na direção e tipo
 func set_animation_based_on_direction(dir: Vector2, type: String) -> void:

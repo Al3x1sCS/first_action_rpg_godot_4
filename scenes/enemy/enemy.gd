@@ -1,10 +1,19 @@
 extends CharacterBody2D
 
-var speed = 25
+# Constantes
+const SPEED = 25
+const RANDOM_MOVE_INTERVAL = 2.0  # Intervalo para mudar a direção e velocidade aleatoriamente
+
+# Variáveis de estado
 var player_chase = false
 var player = null
 var last_direction = Vector2.ZERO  # Armazena a última direção de movimento
 var current_animation = ""
+
+# Variáveis para movimento aleatório
+var random_direction = Vector2.ZERO
+var random_speed = 0
+var random_move_timer = 0.0
 
 # Referência ao AnimatedSprite2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -18,7 +27,16 @@ var animation_map = {
     "idle_side_right": {"animation": "idle_side", "flip_h": false},
     "idle_side_left": {"animation": "idle_side", "flip_h": true},
     "idle_front": {"animation": "idle_front", "flip_h": false},
-    "idle_back": {"animation": "idle_back", "flip_h": false}
+    "idle_back": {"animation": "idle_back", "flip_h": false},
+    "attack_back": {"animation": "attack_back", "flip_h": false},
+    "attack_front": {"animation": "attack_front", "flip_h": false},
+    "attack_side_right": {"animation": "attack_side", "flip_h": false},
+    "attack_side_left": {"animation": "attack_side", "flip_h": true},
+    "damage_back": {"animation": "damage_back", "flip_h": false},
+    "damage_front": {"animation": "damage_front", "flip_h": false},
+    "damage_side_right": {"animation": "damage_side", "flip_h": false},
+    "damage_side_left": {"animation": "damage_side", "flip_h": true},
+    "death_animation": {"animation": "death", "flip_h": false}
 }
 
 func _on_detection_area_body_entered(_body: Node2D) -> void:
@@ -31,14 +49,24 @@ func _on_detection_area_body_exited(_body: Node2D) -> void:
 
 func _physics_process(_delta: float) -> void:
     if player_chase:
-        velocity = (player.position - position).normalized() * speed
+        velocity = (player.position - position).normalized() * SPEED
         last_direction = player.position - position  # Atualiza a última direção de movimento
-        set_animation_based_on_direction(last_direction, "walk")
+        set_animation_based_on_direction(last_direction, "attack")
     else:
-        velocity = Vector2.ZERO  # Ou defina uma lógica de movimento padrão
-        set_animation_based_on_direction(last_direction, "idle")
+        move_randomly(_delta)
 
     position += velocity * _delta
+
+# Função para mover aleatoriamente
+func move_randomly(_delta: float) -> void:
+    random_move_timer -= _delta
+    if random_move_timer <= 0:
+        random_direction = Vector2(randf() * 2 - 1, randf() * 2 - 1).normalized()
+        random_speed = randf_range(10, SPEED)
+        random_move_timer = RANDOM_MOVE_INTERVAL
+
+    velocity = random_direction * random_speed
+    set_animation_based_on_direction(random_direction, "walk")
 
 # Define a animação com base na direção e tipo
 func set_animation_based_on_direction(dir: Vector2, type: String) -> void:

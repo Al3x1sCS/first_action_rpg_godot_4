@@ -541,7 +541,7 @@ script = ExtResource("1_w2fvl")
 z_index = 1
 position = Vector2(0, -3)
 sprite_frames = SubResource("SpriteFrames_woaqn")
-animation = &"idle_front"
+animation = &"death_animation"
 
 [node name="detection_area" type="Area2D" parent="."]
 

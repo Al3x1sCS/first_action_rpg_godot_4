@@ -15,6 +15,7 @@ var player_in_range: bool = false
 var attack_cooldown: float = 0.0
 var health: int = 100
 var is_alive: bool = true
+var can_take_damage: bool = true
 
 # Variáveis para movimento aleatório
 var random_direction = Vector2.ZERO
@@ -48,11 +49,27 @@ var animation_map = {
 func enemy() -> void:
     pass
 
+func deal_with_damage() -> void:
+    if player_in_range and global.player_current_attack == true:
+        if can_take_damage == true:    
+            health = health - 20
+            $take_damage_cooldown.start()
+            can_take_damage = false
+            print("Enemy health: ", health)
+            if health <= 0:
+                is_alive = false
+                health = 0
+                set_animation("death_animation")
+                self.queue_free()
+                print("Enemy is dead!")
+
 func _on_enemy_hitbox_body_entered(_body:Node2D) -> void:
-    pass # Replace with function body.
+    if _body.has_method("player"):
+        player_in_range = true
 
 func _on_enemy_hitbox_body_exited(_body:Node2D) -> void:
-    pass # Replace with function body.
+    if _body.has_method("player"):
+        player_in_range = false
 
 func _on_detection_area_body_entered(_body: Node2D) -> void:
     player = _body
@@ -62,7 +79,12 @@ func _on_detection_area_body_exited(_body: Node2D) -> void:
     player = null
     player_chase = false
 
+func _on_take_damage_cooldown_timeout() -> void:
+    can_take_damage = true
+
 func _physics_process(_delta: float) -> void:
+    deal_with_damage()
+
     if player_chase:
         velocity = (player.position - position).normalized() * SPEED
         last_direction = player.position - position  # Atualiza a última direção de movimento

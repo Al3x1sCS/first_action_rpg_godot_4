@@ -18,10 +18,6 @@ config/icon="res://sprites/icon.svg"
 
 global="*res://scripts/global.gd"
 
-[display]
-
-window/stretch/scale=3.0
-
 [input]
 
 mv_stop={

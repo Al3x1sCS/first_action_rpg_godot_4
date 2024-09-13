@@ -14,8 +14,10 @@ var last_direction: Vector2 = Vector2.ZERO
 # Variáveis de combate
 var enemy_in_range: bool = false
 var enemy_attack_cooldown: bool = true
-var health: int = 100
+var health: int = 200
 var player_alive: bool = true
+
+var attack_ip: bool = false
 
 # Referência ao AnimatedSprite2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -34,7 +36,7 @@ var animation_map = {
     "attack_front": {"animation": "attack_front", "flip_h": false},
     "attack_side_right": {"animation": "attack_side", "flip_h": false},
     "attack_side_left": {"animation": "attack_side", "flip_h": true},
-    "death_animation": {"animation": "death", "flip_h": false}
+    "death_animation": {"animation": "death_animation", "flip_h": false}
 }
 
 func player() -> void:
@@ -46,13 +48,14 @@ func _physics_process(delta: float) -> void:
     move_if_needed(delta)
     update_animation_if_needed()
     check_and_stop_if_needed()
+    enemy_attack()
+    attack()
 
     if health <= 0:
         player_alive = false
         health = 0
         set_animation("death_animation")
         print("Player is dead!")
-        self.queue_free()
 
 # Processa a entrada do usuário
 func process_input() -> void:
@@ -73,7 +76,8 @@ func halt_movement() -> void:
     if is_moving:
         is_moving = false
         velocity = Vector2.ZERO
-        set_animation_based_on_direction(last_direction, "idle")
+        if attack_ip == false:
+            set_animation_based_on_direction(last_direction, "idle")
 
 # Calcula a direção do movimento
 func calculate_direction() -> void:
@@ -82,22 +86,30 @@ func calculate_direction() -> void:
 
 # Move o jogador se necessário
 func move_if_needed(delta: float) -> void:
-    if is_moving:
+    if is_moving and not attack_ip:
         calculate_direction()
         perform_movement(delta)
+        update_animation_if_needed()
 
 # Realiza o movimento do jogador
 func perform_movement(delta: float) -> void:
-    move_and_collide(velocity * delta)
+    if velocity != Vector2.ZERO:
+        move_and_collide(velocity * delta)
+    else:
+        is_moving = false
+        set_animation_based_on_direction(last_direction, "idle")
+    
 
 # Atualiza a animação se necessário
 func update_animation_if_needed() -> void:
-    if is_moving:
+    if is_moving and not attack_ip:
         set_animation_based_on_direction(direction, "walk")
+    elif not is_moving and not attack_ip:
+        set_animation_based_on_direction(last_direction, "idle")
 
 # Define a animação com base na direção e tipo
 func set_animation_based_on_direction(dir: Vector2, type: String) -> void:
-    var key: String
+    var key: String = ""
 
     if abs(dir.x) > abs(dir.y):
         if dir.x > 0:
@@ -110,7 +122,7 @@ func set_animation_based_on_direction(dir: Vector2, type: String) -> void:
         else:
             key = type + "_back"
 
-    if current_animation != key:
+    if current_animation != key and key != "":
         set_animation(key)
         last_direction = dir
 
@@ -145,7 +157,31 @@ func _on_attack_cooldown_timeout() -> void:
     enemy_attack_cooldown = true
 
 func attack() -> void:
-    pass
+    var _dir = last_direction
+
+    if Input.is_action_just_pressed("player_attack") and not attack_ip:
+        global.player_current_attack = true
+        attack_ip = true
+        is_moving = false  # Interrompe o movimento durante o ataque
+        if abs(_dir.x) > abs(_dir.y):
+            if _dir.x > 0:
+                set_animation("attack_side_right")
+            else:
+                set_animation("attack_side_left")
+        else:
+            if _dir.y > 0:
+                set_animation("attack_front")
+            else:
+                set_animation("attack_back")
+
+        $deal_attack_timer.start()
+    elif not attack_ip:
+        update_animation_if_needed()
+
+func _on_deal_attack_timer_timeout() -> void:
+    $deal_attack_timer.stop()
+    global.player_current_attack = false
+    attack_ip = false
 
 func enemy_attack() -> void:
     if enemy_in_range and enemy_attack_cooldown == true:
@@ -161,4 +197,3 @@ func _ready() -> void:
 # Função chamada a cada frame
 func _process(delta: float) -> void:
     _physics_process(delta)
-    enemy_attack()

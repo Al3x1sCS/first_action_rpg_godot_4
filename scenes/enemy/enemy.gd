@@ -43,7 +43,7 @@ var animation_map = {
     "damage_front": {"animation": "damage_front", "flip_h": false},
     "damage_side_right": {"animation": "damage_side", "flip_h": false},
     "damage_side_left": {"animation": "damage_side", "flip_h": true},
-    "death_animation": {"animation": "death", "flip_h": false}
+    "death_animation": {"animation": "death_animation", "flip_h": false}
 }
 
 func enemy() -> void:
